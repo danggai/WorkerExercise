@@ -16,6 +16,7 @@ class MainFragment : Fragment() {
     }
 
     private lateinit var viewModel: MainViewModel
+    private lateinit var workManager: WorkManager
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -27,6 +28,10 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+
+        activity?.let {
+            workManager = WorkManager.getInstance(it)
+        }
     }
 
 
