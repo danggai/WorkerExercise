@@ -32,6 +32,8 @@ class MainFragment : Fragment() {
         activity?.let {
             workManager = WorkManager.getInstance(it)
         }
+
+        viewModel.startWorkManagers(workManager)
     }
 
 
