@@ -15,7 +15,9 @@ import java.util.concurrent.TimeUnit
 
 class MainViewModel : ViewModel() {
 
-    fun startWorkManagers(workManager: WorkManager) {
+    fun startWorkRequests(workManager: WorkManager) {
+        workManager.cancelAllWork()
+
         OneTimeWorkRequest(workManager)
         PeriodicWorkRequest(15, workManager)
 
@@ -46,11 +48,4 @@ class MainViewModel : ViewModel() {
         val workRequest = PeriodicWorkRequestBuilder<MyCoroutineWorker>(period, TimeUnit.MINUTES).build()
         workManager.enqueue(workRequest)
     }
-
-    suspend fun cancelAllWork(workManager: WorkManager) {
-        delay(500L)
-
-        workManager.cancelAllWork()
-    }
-
 }

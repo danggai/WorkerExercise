@@ -33,7 +33,7 @@ class MainFragment : Fragment() {
             workManager = WorkManager.getInstance(it)
         }
 
-        viewModel.startWorkManagers(workManager)
+        viewModel.startWorkRequests(workManager)
     }
 
 
