@@ -4,10 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
-import com.example.workersample.worker.DiceRollWorker
-import com.example.workersample.worker.DiceSumWorker
-import com.example.workersample.worker.MyCoroutineWorker
-import com.example.workersample.worker.MyWorker
+import com.example.workersample.worker.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
@@ -29,6 +26,8 @@ class MainViewModel : ViewModel() {
             delay(1000L)
             Log.e("-", "-----------------------------------------------------------------------------")
             ArrayCreatingInputMerger(workManager)
+            delay(1000L)
+            OverwritingInputMerger(workManager)
         }
     }
 
@@ -67,5 +66,18 @@ class MainViewModel : ViewModel() {
 
         workManager.beginWith(listOf(diceRollWorker1, diceRollWorker2, diceRollWorker3))
                 .then(diceSumWorker).enqueue()
+    }
+
+    fun OverwritingInputMerger(workManager: WorkManager) {
+        val diceRollWorker1 = OneTimeWorkRequestBuilder<DiceRollWorker>().build()
+        val diceRollWorker2 = OneTimeWorkRequestBuilder<DiceRollWorker>().build()
+        val diceRollWorker3 = OneTimeWorkRequestBuilder<DiceRollWorker>().build()
+
+        val rolledTimeWorker = OneTimeWorkRequestBuilder<DiceRolledTimeWorker>()
+                .setInputMerger(OverwritingInputMerger::class)
+                .build()
+
+        workManager.beginWith(listOf(diceRollWorker1, diceRollWorker2, diceRollWorker3))
+                .then(rolledTimeWorker).enqueue()
     }
 }

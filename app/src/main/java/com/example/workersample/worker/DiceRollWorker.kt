@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import java.text.SimpleDateFormat
 import java.util.*
 
 class DiceRollWorker(context: Context, workerParams: WorkerParameters) :
@@ -14,7 +15,10 @@ class DiceRollWorker(context: Context, workerParams: WorkerParameters) :
 
         val random = Random()
         val diceResult = 1 + random.nextInt(6)
+        val time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").format(Date()).toString()
+
         Log.e("DiceRollWorker", "Dice roll result = $diceResult!")
-        return Result.success(workDataOf(Pair("DiceResult", diceResult)))
+        Log.e("DiceRollWorker", "Dice rolled time = $time!")
+        return Result.success(workDataOf(Pair("DiceResult", diceResult), Pair("RolledTime", time)))
     }
 }
