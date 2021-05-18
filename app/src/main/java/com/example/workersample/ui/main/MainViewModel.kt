@@ -1,12 +1,11 @@
 package com.example.workersample.ui.main
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
+import com.example.workersample.worker.DiceRollWorker
+import com.example.workersample.worker.DiceSumWorker
 import com.example.workersample.worker.MyCoroutineWorker
 import com.example.workersample.worker.MyWorker
 import kotlinx.coroutines.delay
@@ -18,11 +17,19 @@ class MainViewModel : ViewModel() {
     fun startWorkRequests(workManager: WorkManager) {
         workManager.cancelAllWork()
 
-        OneTimeWorkRequest(workManager)
-        PeriodicWorkRequest(15, workManager)
+        viewModelScope.launch {
+            OneTimeWorkRequest(workManager)
+//            PeriodicWorkRequest(15, workManager)
 
-        OneTimeCoroutineWorkRequest(workManager)
-        PeriodicCoroutineWorkRequest(15, workManager)
+            OneTimeCoroutineWorkRequest(workManager)
+//            PeriodicCoroutineWorkRequest(15, workManager)
+        }
+
+        viewModelScope.launch {
+            delay(1000L)
+            Log.e("-", "-----------------------------------------------------------------------------")
+            ArrayCreatingInputMerger(workManager)
+        }
     }
 
     fun OneTimeWorkRequest(workManager: WorkManager) {
@@ -47,5 +54,18 @@ class MainViewModel : ViewModel() {
         /*주기적으로 반복하는 CoroutineWorkRequest*/
         val workRequest = PeriodicWorkRequestBuilder<MyCoroutineWorker>(period, TimeUnit.MINUTES).build()
         workManager.enqueue(workRequest)
+    }
+
+    fun ArrayCreatingInputMerger(workManager: WorkManager) {
+        val diceRollWorker1 = OneTimeWorkRequestBuilder<DiceRollWorker>().build()
+        val diceRollWorker2 = OneTimeWorkRequestBuilder<DiceRollWorker>().build()
+        val diceRollWorker3 = OneTimeWorkRequestBuilder<DiceRollWorker>().build()
+
+        val diceSumWorker = OneTimeWorkRequestBuilder<DiceSumWorker>()
+                .setInputMerger(ArrayCreatingInputMerger::class)
+                .build()
+
+        workManager.beginWith(listOf(diceRollWorker1, diceRollWorker2, diceRollWorker3))
+                .then(diceSumWorker).enqueue()
     }
 }
